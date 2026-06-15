@@ -59,7 +59,8 @@ class LoginController extends Controller
         ];
 
         $externalLinks = [
-            ['label' => '🦊 Dépôt GitLab', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS'],
+            ['label' => '🦊 GitLab', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS'],
+            ['label' => '🐙 GitHub', 'url' => 'https://github.com/frioldfr/Firstus-FacturationPOS'],
             ['label' => '📖 GitLab — Issues', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/issues'],
             ['label' => '🔀 GitLab — Merge requests', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/merge_requests'],
         ];

@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="mt-2 p-2 bg-light rounded small">
-                    <div class="link-section-title">GitLab</div>
+                    <div class="link-section-title">Dépôts Git (GitLab / GitHub)</div>
                     @foreach($externalLinks as $link)
                     <div class="mb-1">
                         <a href="{{ $link['url'] }}" target="_blank" rel="noopener">{{ $link['label'] }}</a>

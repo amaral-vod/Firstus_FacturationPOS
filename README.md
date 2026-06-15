@@ -2,7 +2,9 @@
 
 Application de gestion commerciale : caisse (POS), stock, facturation proforma, clients, fournisseurs.
 
-**Dépôt GitLab :** https://gitlab.com/frioldfr/Firstus-FacturationPOS
+**Dépôts :**
+- GitLab : https://gitlab.com/frioldfr/Firstus-FacturationPOS
+- GitHub : https://github.com/frioldfr/Firstus-FacturationPOS
 
 ---
 
@@ -123,19 +125,23 @@ php artisan import:products --replace
 
 ---
 
-## GitLab
+## GitLab & GitHub
 
-| Lien | URL |
-|------|-----|
-| Projet | https://gitlab.com/frioldfr/Firstus-FacturationPOS |
-| Issues | https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/issues |
-| Merge requests | https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/merge_requests |
+| Plateforme | URL |
+|------------|-----|
+| GitLab | https://gitlab.com/frioldfr/Firstus-FacturationPOS |
+| GitHub | https://github.com/frioldfr/Firstus-FacturationPOS |
+
+Pousser sur **les deux** dépôts :
 
 ```bash
 git add .
 git commit -m "Description des changements"
-git push
+git push origin main    # GitLab
+git push github main    # GitHub
 ```
+
+Ou en une commande : `./scripts/push-remotes.sh`
 
 ---
 
