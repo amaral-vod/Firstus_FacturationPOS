@@ -4,7 +4,7 @@ Application de gestion commerciale : caisse (POS), stock, facturation proforma, 
 
 **Dépôts :**
 - GitLab : https://gitlab.com/frioldfr/Firstus-FacturationPOS
-- GitHub : https://github.com/frioldfr/Firstus-FacturationPOS
+- GitHub : https://github.com/amaral-vod/Firstus_FacturationPOS
 
 ---
 
@@ -130,7 +130,7 @@ php artisan import:products --replace
 | Plateforme | URL |
 |------------|-----|
 | GitLab | https://gitlab.com/frioldfr/Firstus-FacturationPOS |
-| GitHub | https://github.com/frioldfr/Firstus-FacturationPOS |
+| GitHub | https://github.com/amaral-vod/Firstus_FacturationPOS |
 
 Pousser sur **les deux** dépôts :
 

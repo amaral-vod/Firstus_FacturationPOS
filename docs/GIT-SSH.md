@@ -1,5 +1,12 @@
 # Pousser vers GitLab / GitHub
 
+| Dépôt | URL |
+|-------|-----|
+| GitLab | `git@gitlab.com:frioldfr/Firstus-FacturationPOS.git` |
+| GitHub | `git@github.com:amaral-vod/Firstus_FacturationPOS.git` |
+
+---
+
 ## Problème « Permission denied (publickey) » en root
 
 Si vous êtes connecté en **root** (`root@frioldfr#`), Git ne trouve pas les clés SSH
@@ -21,7 +28,7 @@ git push origin main
 git push github main
 ```
 
-### Solution C — Une commande manuelle (root ou frioldfr)
+### Solution C — Commande manuelle (root ou frioldfr)
 
 ```bash
 export GIT_SSH_COMMAND='ssh -i /home/frioldfr/.ssh/id_ed25519_gitlab -o IdentitiesOnly=yes'
@@ -32,28 +39,41 @@ git push github main
 
 ---
 
-## GitHub : enregistrer la clé SSH
+## GitHub (compte / org **amaral-vod**)
 
-Tant que `ssh -T git@github.com` renvoie « Permission denied », ajoutez la clé :
+La clé doit être ajoutée sur le **compte GitHub** qui a accès à `amaral-vod`.
 
 1. https://github.com/settings/keys → **New SSH key**
-2. Collez le contenu de :
+2. Titre : `Firstus-POS-serveur`
+3. Collez :
 
-```bash
-cat /home/frioldfr/.ssh/id_ed25519_gitlab.pub
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINgE2Y0PlW9QEiENcqyR+2AwzvL0DU3msBGLt91q0DJ4 frioldfr@gmail.com
 ```
 
-3. Créez le dépôt vide : https://github.com/new → `Firstus-FacturationPOS`
-4. Test :
+4. Vérifiez l’empreinte : `SHA256:4xmJjSIG0nh+0LYdW51PoU7xgrkCHAAl8Xt7AgsR1yA`
+5. Dépôt : https://github.com/amaral-vod/Firstus_FacturationPOS
+6. Test :
 
 ```bash
 ssh -i /home/frioldfr/.ssh/id_ed25519_gitlab -o IdentitiesOnly=yes -T git@github.com
+# → Hi VOTRE_USER! You've successfully authenticated...
 ```
 
-5. Push :
+7. Push :
 
 ```bash
 ./scripts/push-remotes.sh
+```
+
+### Alternative HTTPS (token)
+
+Si SSH bloque encore, créez un token : https://github.com/settings/tokens (scope `repo`)
+
+```bash
+export GIT_SSH_COMMAND='ssh -i /home/frioldfr/.ssh/id_ed25519_gitlab -o IdentitiesOnly=yes'
+git push origin main
+git push https://VOTRE_TOKEN@github.com/amaral-vod/Firstus_FacturationPOS.git main
 ```
 
 ---
