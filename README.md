@@ -6,6 +6,10 @@ Application de gestion commerciale : caisse (POS), stock, facturation proforma, 
 - GitLab : https://gitlab.com/frioldfr/Firstus-FacturationPOS
 - GitHub : https://github.com/amaral-vod/Firstus_FacturationPOS
 
+**Manuel utilisateur :**
+- [docs/MANUEL-UTILISATION.md](docs/MANUEL-UTILISATION.md)
+- [docs/MANUEL-UTILISATION.docx](docs/MANUEL-UTILISATION.docx) (Word)
+
 ---
 
 ## Accès à l'application
