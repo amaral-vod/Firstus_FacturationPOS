@@ -80,7 +80,10 @@
             @if(auth()->user()->hasPermission('vente.create'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('caisse.index') ? 'active' : '' }}" href="{{ route('caisse.index') }}">💰 POS</a></li>@endif
             @if(auth()->user()->hasPermission('caisse.session'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('caisse.sessions.*') ? 'active' : '' }}" href="{{ route('caisse.sessions.index') }}">🏧 Ouverture/Fermeture</a></li>@endif
             @if(auth()->user()->hasPermission('vente.view'))<li class="nav-item"><a class="nav-link" href="{{ route('caisse.historique') }}">🧾 Ventes</a></li>@endif
-            @if(auth()->user()->hasPermission('facturation.view'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('facturation.*') ? 'active' : '' }}" href="{{ route('facturation.index') }}">📄 Facturation</a></li>@endif
+            @if(auth()->user()->hasPermission('facturation.view'))
+            <li class="nav-item"><a class="nav-link {{ request()->routeIs('facturation.index') || request()->routeIs('facturation.show') ? 'active' : '' }}" href="{{ route('facturation.index') }}">📄 Facturation</a></li>
+            <li class="nav-item"><a class="nav-link {{ request()->routeIs('facturation.create') ? 'active' : '' }}" href="{{ route('facturation.create') }}">📋 Proforma</a></li>
+            @endif
             @if(auth()->user()->hasPermission('clients.manage'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}" href="{{ route('clients.index') }}">🤝 Clients</a></li>@endif
             @if(auth()->user()->hasPermission('credits.manage'))<li class="nav-item"><a class="nav-link" href="{{ route('clients.credits') }}">💳 Crédits</a></li>@endif
 

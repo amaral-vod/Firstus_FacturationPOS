@@ -9,12 +9,12 @@
     .link-item { font-size: .85rem; }
     .link-item a { text-decoration: none; }
     .link-item a:hover { text-decoration: underline; }
+    .link-section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; color: #64748b; margin: .75rem 0 .25rem; }
 </style>
 @endsection
 
 @section('content')
 <div class="row justify-content-center g-4">
-    {{-- Formulaire de connexion --}}
     <div class="col-lg-4">
         <div class="card card-modern shadow">
             <div class="card-body p-4">
@@ -43,15 +43,28 @@
                     <button type="submit" class="btn btn-primary w-100">🚀 Se connecter</button>
                 </form>
 
-                <div class="mt-3 p-2 bg-light rounded small text-center">
-                    <strong>🌐 Accès réseau :</strong><br>
-                    <a href="{{ $base }}/login">{{ $base }}/login</a>
+                <div class="mt-3 p-2 bg-light rounded small">
+                    <div class="link-section-title">Accès application</div>
+                    @foreach($accessLinks as $link)
+                    <div class="mb-1">
+                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a><br>
+                        <span class="text-muted text-break">{{ $link['url'] }}</span>
+                    </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-2 p-2 bg-light rounded small">
+                    <div class="link-section-title">GitLab</div>
+                    @foreach($externalLinks as $link)
+                    <div class="mb-1">
+                        <a href="{{ $link['url'] }}" target="_blank" rel="noopener">{{ $link['label'] }}</a>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Comptes --}}
     <div class="col-lg-4">
         <div class="card card-modern shadow h-100">
             <div class="card-header bg-white">
@@ -77,7 +90,6 @@
         </div>
     </div>
 
-    {{-- Liens modules --}}
     <div class="col-lg-4">
         <div class="card card-modern shadow h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -86,11 +98,9 @@
             </div>
             <div class="card-body p-2" style="max-height:520px;overflow-y:auto">
                 <div class="list-group list-group-flush">
-                    @foreach($links as $link)
+                    @foreach($moduleLinks as $link)
                     <div class="list-group-item link-item py-2 px-2 border-0">
-                        <a href="{{ $link['url'] }}" target="_blank" class="text-dark">
-                            {{ $link['label'] }}
-                        </a>
+                        <a href="{{ $link['url'] }}" class="text-dark">{{ $link['label'] }}</a>
                         <br><small class="text-muted text-break">{{ $link['url'] }}</small>
                     </div>
                     @endforeach
