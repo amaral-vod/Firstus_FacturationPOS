@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'list' => [
+        'dashboard.view' => '📊 Tableau de bord',
+        'users.manage' => '👥 Utilisateurs',
+        'roles.manage' => '🔐 Rôles',
+        'permissions.manage' => '🔑 Permissions',
+        'groups.manage' => '👥 Groupes utilisateurs',
+        'login_history.view' => '📜 Historique connexions',
+        'settings.manage' => '⚙️ Paramètres généraux',
+        'vente.create' => '💰 POS / Vente',
+        'vente.view' => '🧾 Ventes',
+        'vente.print' => '🖨️ Impression ticket',
+        'facturation.view' => '📄 Facturation',
+        'facturation.devis' => '📝 Devis',
+        'facturation.commande' => '📋 Bons de commande',
+        'facturation.livraison' => '🚚 Bons de livraison',
+        'facturation.facture_a4' => '📃 Factures A4',
+        'clients.manage' => '🤝 Clients',
+        'credits.manage' => '💳 Crédits clients',
+        'caisse.session' => '🏧 Ouverture/Fermeture caisse',
+        'products.manage' => '📦 Produits',
+        'categories.manage' => '🏷️ Catégories',
+        'stock.view' => '📋 Stock',
+        'stock.entry' => '📥 Entrée stock',
+        'stock.exit' => '📤 Sortie stock',
+        'stock.inventory' => '📝 Inventaire',
+        'fournisseurs.manage' => '🏭 Fournisseurs',
+        'retour.manage' => '↩️ Retours',
+        'annulation.manage' => '🚫 Annulations',
+        'rapports.view' => '📈 Rapports & BI',
+        'journal.view' => '📜 Journal / Audit',
+        'notifications.view' => '🔔 Notifications',
+        'security.manage' => '🛡️ Sécurité',
+        'sites.manage' => '🏪 Multi-sites',
+        'documents.manage' => '📎 Documents',
+    ],
+
+    'roles' => [
+        'super_admin' => ['*'],
+        'admin' => ['*'],
+        'caissier' => [
+            'dashboard.view', 'vente.create', 'vente.view', 'vente.print',
+            'facturation.view', 'caisse.session', 'clients.manage',
+        ],
+        'magasinier' => [
+            'dashboard.view', 'stock.view', 'stock.entry', 'stock.exit',
+            'stock.inventory', 'products.manage', 'categories.manage',
+            'fournisseurs.manage', 'retour.manage',
+        ],
+        'comptable' => [
+            'dashboard.view', 'facturation.view', 'facturation.facture_a4',
+            'clients.manage', 'credits.manage', 'fournisseurs.manage',
+            'rapports.view', 'journal.view',
+        ],
+        'logisticien' => [
+            'dashboard.view', 'stock.view', 'facturation.livraison',
+            'facturation.commande', 'fournisseurs.manage', 'retour.manage',
+        ],
+    ],
+];
