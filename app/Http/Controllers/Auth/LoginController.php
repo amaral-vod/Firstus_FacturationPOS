@@ -24,6 +24,7 @@ class LoginController extends Controller
 
         $accounts = User::with('role')->where('is_active', true)->orderBy('name')->get();
 
+        $demoMode = (bool) config('app.demo_mode');
         $base = rtrim(config('app.url'), '/');
         $ip = request()->server('SERVER_ADDR') ?: '192.168.1.79';
 
@@ -69,7 +70,7 @@ class LoginController extends Controller
             ['label' => '📡 IP serveur', 'url' => "http://{$ip}:8000/login"],
         ];
 
-        return view('auth.login', compact('accounts', 'moduleLinks', 'externalLinks', 'accessLinks', 'base'));
+        return view('auth.login', compact('accounts', 'moduleLinks', 'externalLinks', 'accessLinks', 'base', 'demoMode'));
     }
 
     public function login(Request $request)

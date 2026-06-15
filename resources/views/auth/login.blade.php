@@ -15,13 +15,16 @@
 
 @section('content')
 <div class="row justify-content-center g-4">
-    <div class="col-lg-4">
+    <div class="col-lg-{{ $demoMode ? '4' : '5' }}">
         <div class="card card-modern shadow">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <h1 class="display-6">🛒</h1>
                     <h3 class="fw-bold">Firstus POS</h3>
                     <p class="text-muted small">Gestion Commerciale & Facturation</p>
+                    @if($demoMode)
+                    <span class="badge bg-info text-dark">Mode démonstration</span>
+                    @endif
                 </div>
 
                 <form method="POST" action="{{ route('login') }}" id="loginForm">
@@ -34,7 +37,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">🔑 Mot de passe</label>
-                        <input type="password" name="password" id="password" class="form-control" value="password" required>
+                        <input type="password" name="password" id="password" class="form-control"
+                               value="{{ $demoMode ? 'password' : '' }}" required>
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" name="remember" class="form-check-input" id="remember">
@@ -43,6 +47,7 @@
                     <button type="submit" class="btn btn-primary w-100">🚀 Se connecter</button>
                 </form>
 
+                @if($demoMode)
                 <div class="mt-3 p-2 bg-light rounded small">
                     <div class="link-section-title">Accès application</div>
                     @foreach($accessLinks as $link)
@@ -61,10 +66,12 @@
                     </div>
                     @endforeach
                 </div>
+                @endif
             </div>
         </div>
     </div>
 
+    @if($demoMode)
     <div class="col-lg-4">
         <div class="card card-modern shadow h-100">
             <div class="card-header bg-white">
@@ -108,6 +115,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection
 

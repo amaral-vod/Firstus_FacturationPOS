@@ -139,6 +139,33 @@ git push
 
 ---
 
+## Déploiement Railway (tests & démos)
+
+Guide détaillé : [docs/DEPLOY-RAILWAY.md](docs/DEPLOY-RAILWAY.md)
+
+### Résumé rapide
+
+1. **railway.app** → New Project → Deploy from **GitLab** → `frioldfr/Firstus-FacturationPOS`
+2. Ajouter un service **PostgreSQL**
+3. Variables du service Web (voir `.env.railway.example`) :
+
+| Variable | Valeur |
+|----------|--------|
+| `APP_ENV` | `staging` |
+| `APP_DEMO_MODE` | `true` |
+| `APP_KEY` | `php artisan key:generate --show` |
+| `APP_URL` | URL Railway (`https://xxx.up.railway.app`) |
+| `DB_CONNECTION` | `pgsql` |
+| `DB_URL` | `${{Postgres.DATABASE_URL}}` |
+| `RUN_SEEDERS` | `true` puis `false` |
+
+4. **Networking** → Generate Domain
+5. Tester : `https://VOTRE-URL/up` et `/login`
+
+Chaque `git push` sur `main` redéploie automatiquement.
+
+---
+
 ## Stack technique
 
 - Laravel 13

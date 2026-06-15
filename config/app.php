@@ -123,4 +123,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mode démonstration (Railway, tests)
+    |--------------------------------------------------------------------------
+    |
+    | Affiche les comptes et liens sur la page de connexion.
+    |
+    */
+
+    'demo_mode' => (bool) env('APP_DEMO_MODE', false),
+
 ];
