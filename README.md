@@ -94,24 +94,26 @@ php artisan db:seed --force
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-### Base PostgreSQL
+### Base MySQL / MariaDB
 
-```sql
-CREATE USER firstus WITH PASSWORD 'firstus123';
-CREATE DATABASE firstus_pos OWNER firstus;
+```bash
+sudo mysql < database/setup_mysql.sql
 ```
 
 Variables `.env` :
 
 ```
-DB_CONNECTION=pgsql
+DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=3306
 DB_DATABASE=firstus_pos
 DB_USERNAME=firstus
 DB_PASSWORD=firstus123
-APP_URL=http://192.168.1.79:8000
 ```
+
+### Base PostgreSQL (legacy)
+
+Voir `database/setup_postgres.sql` si vous conservez PostgreSQL.
 
 ### Import produits CSV
 

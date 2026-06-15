@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
             $table->string('numero')->unique();
-            $table->enum('type', ['facture', 'devis', 'bon_commande', 'bon_livraison', 'ticket', 'facture_a4', 'avoir'])->default('facture');
+            $table->enum('type', ['facture', 'devis', 'bon_commande', 'bon_livraison', 'ticket', 'facture_a4', 'avoir', 'proforma'])->default('facture');
             $table->foreignId('vente_id')->nullable()->constrained('ventes')->nullOnDelete();
             $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

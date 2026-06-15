@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private const FACTURE_TYPES = [
+        'facture', 'devis', 'bon_commande', 'bon_livraison',
+        'ticket', 'facture_a4', 'avoir', 'proforma',
+    ];
+
     public function up(): void
     {
         Schema::create('facture_details', function (Blueprint $table) {
@@ -28,12 +33,7 @@ return new class extends Migration
             $table->string('client_telephone')->nullable()->after('client_adresse');
         });
 
-        DB::statement('ALTER TABLE factures ALTER COLUMN type TYPE VARCHAR(30) USING type::text');
-        DB::statement('ALTER TABLE factures DROP CONSTRAINT IF EXISTS factures_type_check');
-        DB::statement("ALTER TABLE factures ADD CONSTRAINT factures_type_check CHECK (type IN (
-            'facture', 'devis', 'bon_commande', 'bon_livraison',
-            'ticket', 'facture_a4', 'avoir', 'proforma'
-        ))");
+        $this->ensureFactureTypeSupportsProforma();
     }
 
     public function down(): void
@@ -42,5 +42,19 @@ return new class extends Migration
             $table->dropColumn(['format_papier', 'client_nom', 'client_adresse', 'client_telephone']);
         });
         Schema::dropIfExists('facture_details');
+    }
+
+    private function ensureFactureTypeSupportsProforma(): void
+    {
+        $driver = Schema::getConnection()->getDriverName();
+        $typesList = implode(', ', array_map(fn ($t) => "'{$t}'", self::FACTURE_TYPES));
+
+        if ($driver === 'pgsql') {
+            DB::statement('ALTER TABLE factures ALTER COLUMN type TYPE VARCHAR(30) USING type::text');
+            DB::statement('ALTER TABLE factures DROP CONSTRAINT IF EXISTS factures_type_check');
+            DB::statement("ALTER TABLE factures ADD CONSTRAINT factures_type_check CHECK (type IN ({$typesList}))");
+        } elseif ($driver === 'mysql') {
+            DB::statement("ALTER TABLE factures MODIFY COLUMN type ENUM({$typesList}) NOT NULL DEFAULT 'facture'");
+        }
     }
 };
