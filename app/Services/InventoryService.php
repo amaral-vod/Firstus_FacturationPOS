@@ -23,13 +23,13 @@ class InventoryService
                 'notes' => $notes,
             ]);
 
-            $products = Product::with('stock')
+            $products = Product::with(['stocks' => fn ($q) => $q->where('site_id', $siteId)])
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get();
 
             foreach ($products as $product) {
-                $theoretical = (int) ($product->stock?->quantity ?? 0);
+                $theoretical = (int) ($product->stocks->first()?->quantity ?? 0);
                 $cost = (float) ($product->cost ?? 0);
 
                 InventoryLine::create([
@@ -113,7 +113,9 @@ class InventoryService
                         $line->counted_qty,
                         'inventaire',
                         $session->reference,
-                        "Inventaire {$session->reference} — {$motif}".($line->notes ? " — {$line->notes}" : '')
+                        "Inventaire {$session->reference} — {$motif}".($line->notes ? " — {$line->notes}" : ''),
+                        $validatorId,
+                        $session->site_id
                     );
                 }
             }

@@ -70,7 +70,20 @@ php artisan migrate:fresh --force --seed
 
 # Import produits CSV
 php artisan import:products --replace
+
+# Alertes stock (planifié à 8h via scheduler)
+php artisan stock:alert
 ```
+
+### Cron production (Hostinger)
+
+Pour les alertes stock quotidiennes, ajoutez dans le panneau Hostinger :
+
+```cron
+* * * * * cd /home/u648457710/domains/easygest.org/public_html/facturation && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Remplacez le chemin par le répertoire réel de l’application sur le serveur.
 
 ---
 

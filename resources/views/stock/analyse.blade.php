@@ -5,8 +5,19 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">Pilotage & valorisation</h5>
-    <a href="{{ route('stock.index') }}" class="btn btn-outline-secondary btn-sm">← Stock</a>
+    <div class="d-flex gap-2">
+        @if(auth()->user()->hasPermission('fournisseurs.manage'))
+        <form action="{{ route('stock.commandes.generate') }}" method="POST">
+            @csrf
+            <input type="hidden" name="site_id" value="{{ $siteId }}">
+            <button class="btn btn-primary btn-sm">🛒 Générer commandes fournisseur</button>
+        </form>
+        @endif
+        <a href="{{ route('stock.index', ['site_id' => $siteId]) }}" class="btn btn-outline-secondary btn-sm">← Stock</a>
+    </div>
 </div>
+
+@include('stock._site_filter')
 
 <div class="row g-3 mb-4">
     <div class="col-md-3"><div class="card card-modern p-3"><small class="text-muted">Valeur totale stock</small><div class="fs-5 fw-bold">{{ number_format($stats['total_value'], 0, ',', ' ') }} FCFA</div></div></div>
@@ -43,16 +54,17 @@
             <div class="card-header bg-white"><h6 class="mb-0">⚠️ À réapprovisionner</h6></div>
             <div class="card-body p-0" style="max-height:280px;overflow:auto">
                 <table class="table mb-0 table-sm">
-                    <thead class="table-light"><tr><th>Produit</th><th>Qté</th><th>Min</th></tr></thead>
+                    <thead class="table-light"><tr><th>Produit</th><th>Qté</th><th>Min</th><th>Fournisseur</th></tr></thead>
                     <tbody>
                         @forelse($replenishment as $s)
                         <tr>
                             <td>{{ $s->product->name }}</td>
                             <td class="text-danger fw-bold">{{ $s->quantity }}</td>
                             <td>{{ $s->min_quantity }}</td>
+                            <td>{{ $s->product->fournisseur?->name ?? '—' }}</td>
                         </tr>
                         @empty
-                        <tr><td colspan="3" class="text-muted text-center">Stock OK</td></tr>
+                        <tr><td colspan="4" class="text-muted text-center">Stock OK</td></tr>
                         @endforelse
                     </tbody>
                 </table>

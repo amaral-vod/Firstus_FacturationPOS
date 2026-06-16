@@ -29,8 +29,9 @@
                 <div class="row g-2" id="productGrid">
                     @foreach($products as $product)
                     <div class="col-md-4 col-6 product-item" data-name="{{ strtolower($product->name) }}" data-category="{{ $product->category_id }}">
-                        <div class="card product-card h-100 {{ ($product->stock?->quantity ?? 0) <= 0 ? 'low-stock' : '' }}"
-                             onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->effective_price }}, {{ $product->stock?->quantity ?? 0 }})">
+                        @php $stockRow = $product->stocks->first(); @endphp
+                        <div class="card product-card h-100 {{ ($stockRow?->quantity ?? 0) <= 0 ? 'low-stock' : '' }}"
+                             onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->effective_price }}, {{ $stockRow?->quantity ?? 0 }})">
                             <div class="card-body p-2 text-center">
                                 <div class="fs-4">📦</div>
                                 <h6 class="mb-1 small">{{ $product->name }}</h6>
@@ -38,7 +39,7 @@
                                 @if($product->isPromoActive())
                                     <small class="text-danger">🔥 Promo !</small>
                                 @endif
-                                <div class="small text-muted">Stock: {{ $product->stock?->quantity ?? 0 }}</div>
+                                <div class="small text-muted">Stock: {{ $stockRow?->quantity ?? 0 }}</div>
                             </div>
                         </div>
                     </div>

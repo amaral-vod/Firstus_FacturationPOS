@@ -8,13 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StockMovement extends Model
 {
     protected $fillable = [
-        'product_id', 'user_id', 'type', 'quantity',
+        'product_id', 'site_id', 'user_id', 'type', 'quantity',
         'quantity_before', 'quantity_after', 'reference', 'notes',
     ];
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function user(): BelongsTo

@@ -22,6 +22,7 @@ use App\Http\Controllers\Rapport\RapportController;
 use App\Http\Controllers\Retour\RetourController;
 use App\Http\Controllers\Setting\SettingController;
 use App\Http\Controllers\Stock\InventorySessionController;
+use App\Http\Controllers\Stock\PurchaseOrderController;
 use App\Http\Controllers\Stock\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -99,6 +100,14 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:stock.exit')->post('/stock/sortie', [StockController::class, 'sortie'])->name('stock.sortie');
     Route::middleware('permission:stock.inventory')->post('/stock/inventaire', [StockController::class, 'inventaire'])->name('stock.inventaire');
     Route::middleware('permission:stock.import')->post('/stock/import', [StockController::class, 'import'])->name('stock.import');
+
+    Route::middleware('permission:fournisseurs.manage')->prefix('stock/commandes')->name('stock.commandes.')->group(function () {
+        Route::get('/', [PurchaseOrderController::class, 'index'])->name('index');
+        Route::post('/generer', [PurchaseOrderController::class, 'generate'])->name('generate');
+        Route::get('/{commande}', [PurchaseOrderController::class, 'show'])->name('show');
+        Route::put('/{commande}/statut', [PurchaseOrderController::class, 'updateStatus'])->name('status');
+        Route::post('/{commande}/reception', [PurchaseOrderController::class, 'receive'])->name('receive');
+    });
 
     Route::middleware('permission:retour.manage')->prefix('retours')->name('retours.')->group(function () {
         Route::get('/', [RetourController::class, 'index'])->name('index');

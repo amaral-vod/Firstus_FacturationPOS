@@ -3,9 +3,11 @@
 @section('page-title', '📜 Mouvements de Stock')
 
 @section('content')
+@include('stock._site_filter')
 <div class="card card-modern mb-3">
     <div class="card-body">
         <form class="row g-2 align-items-end">
+            <input type="hidden" name="site_id" value="{{ $siteId }}">
             <div class="col-md-2">
                 <label class="form-label small">Du</label>
                 <input type="date" name="from" class="form-control form-control-sm" value="{{ request('from') }}">

@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class StockAnalyticsService
 {
-    public static function summary(): array
+    public static function summary(?int $siteId = null): array
     {
-        $stocks = Stock::with('product')->get();
+        $siteId = StockService::resolveSiteId($siteId);
+        $stocks = Stock::with('product')->where('site_id', $siteId)->get();
 
         $totalQty = $stocks->sum('quantity');
         $totalValue = $stocks->sum(fn (Stock $s) => $s->valuation());
@@ -28,12 +29,16 @@ class StockAnalyticsService
             'low_count' => $lowCount,
             'over_count' => $overCount,
             'zero_count' => $stocks->where('quantity', 0)->count(),
+            'site_id' => $siteId,
         ];
     }
 
-    public static function valuationByCategory(): Collection
+    public static function valuationByCategory(?int $siteId = null): Collection
     {
+        $siteId = StockService::resolveSiteId($siteId);
+
         return Stock::query()
+            ->where('stocks.site_id', $siteId)
             ->join('products', 'stocks.product_id', '=', 'products.id')
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
             ->select(
@@ -47,9 +52,10 @@ class StockAnalyticsService
     }
 
     /** @return Collection<int, object> */
-    public static function slowMovers(int $days = 90, int $limit = 15): Collection
+    public static function slowMovers(int $days = 90, int $limit = 15, ?int $siteId = null): Collection
     {
         $since = now()->subDays($days);
+        $siteId = StockService::resolveSiteId($siteId);
 
         return DB::table('stocks')
             ->join('products', 'stocks.product_id', '=', 'products.id')
@@ -59,6 +65,7 @@ class StockAnalyticsService
                     ->where('ventes.statut', 'complete')
                     ->where('ventes.created_at', '>=', $since);
             })
+            ->where('stocks.site_id', $siteId)
             ->where('products.is_active', true)
             ->where('stocks.quantity', '>', 0)
             ->groupBy('products.id', 'products.name', 'products.sku', 'stocks.quantity', 'products.cost')
@@ -78,9 +85,10 @@ class StockAnalyticsService
     }
 
     /** @return Collection<int, object> */
-    public static function rotation(int $days = 30, int $limit = 15): Collection
+    public static function rotation(int $days = 30, int $limit = 15, ?int $siteId = null): Collection
     {
         $since = now()->subDays($days);
+        $siteId = StockService::resolveSiteId($siteId);
 
         return DB::table('products')
             ->join('stocks', 'products.id', '=', 'stocks.product_id')
@@ -90,6 +98,7 @@ class StockAnalyticsService
                     ->where('ventes.statut', 'complete')
                     ->where('ventes.created_at', '>=', $since);
             })
+            ->where('stocks.site_id', $siteId)
             ->where('products.is_active', true)
             ->groupBy('products.id', 'products.name', 'stocks.quantity')
             ->select(
@@ -107,9 +116,12 @@ class StockAnalyticsService
             ->get();
     }
 
-    public static function movementStats(?string $from = null, ?string $to = null): array
+    public static function movementStats(?string $from = null, ?string $to = null, ?int $siteId = null): array
     {
+        $siteId = StockService::resolveSiteId($siteId);
+
         $query = StockMovement::query()
+            ->where('site_id', $siteId)
             ->when($from, fn ($q) => $q->whereDate('created_at', '>=', $from))
             ->when($to, fn ($q) => $q->whereDate('created_at', '<=', $to));
 
@@ -126,7 +138,6 @@ class StockAnalyticsService
         ];
     }
 
-    /** Pertes estimées via écarts d'inventaire validés (négatifs) */
     public static function inventoryLosses(int $limit = 20): Collection
     {
         return InventoryLine::query()
@@ -138,17 +149,23 @@ class StockAnalyticsService
             ->get();
     }
 
-    public static function replenishmentList(): Collection
+    public static function replenishmentList(?int $siteId = null): Collection
     {
-        return Stock::with('product.category')
+        $siteId = StockService::resolveSiteId($siteId);
+
+        return Stock::with('product.category', 'product.fournisseur')
+            ->where('site_id', $siteId)
             ->whereColumn('quantity', '<=', 'min_quantity')
             ->orderBy('quantity')
             ->get();
     }
 
-    public static function overstockList(): Collection
+    public static function overstockList(?int $siteId = null): Collection
     {
+        $siteId = StockService::resolveSiteId($siteId);
+
         return Stock::with('product.category')
+            ->where('site_id', $siteId)
             ->where('max_quantity', '>', 0)
             ->whereColumn('quantity', '>', 'max_quantity')
             ->orderByDesc('quantity')

@@ -18,7 +18,8 @@ class VenteController extends Controller
 {
     public function index()
     {
-        $products = Product::with('stock', 'category')
+        $siteId = StockService::resolveSiteId();
+        $products = Product::with(['category', 'stocks' => fn ($q) => $q->where('site_id', $siteId)])
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -56,12 +57,14 @@ class VenteController extends Controller
                 $lines = [];
 
                 foreach ($data['items'] as $item) {
-                    $product = Product::with('stock')->findOrFail($item['product_id']);
+                    $product = Product::with(['stocks' => fn ($q) => $q->where('site_id', StockService::resolveSiteId())])
+                        ->findOrFail($item['product_id']);
                     $prix = $product->effective_price;
                     $totalLigne = $prix * $item['quantite'];
                     $sousTotal += $totalLigne;
 
-                    if (($product->stock?->quantity ?? 0) < $item['quantite']) {
+                    $stockQty = (int) ($product->stocks->first()?->quantity ?? 0);
+                    if ($stockQty < $item['quantite']) {
                         throw new \RuntimeException("Stock insuffisant pour {$product->name}");
                     }
 

@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Stock extends Model
 {
-    protected $fillable = ['product_id', 'quantity', 'min_quantity', 'max_quantity', 'location'];
+    protected $fillable = ['product_id', 'site_id', 'quantity', 'min_quantity', 'max_quantity', 'location'];
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function isLow(): bool

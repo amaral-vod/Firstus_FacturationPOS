@@ -24,10 +24,12 @@
 @endif
 @if($lowCount > 0)
 <div class="alert alert-warning">⚠️ <strong>{{ $lowCount }}</strong> produit(s) en stock faible !
-    <a href="?alerte=1" class="alert-link">Voir les alertes</a>
-    <a href="{{ route('stock.analyse') }}" class="alert-link ms-2">Analyse complète</a>
+    <a href="?alerte=1&site_id={{ $siteId }}" class="alert-link">Voir les alertes</a>
+    <a href="{{ route('stock.analyse', ['site_id' => $siteId]) }}" class="alert-link ms-2">Analyse complète</a>
 </div>
 @endif
+
+@include('stock._site_filter')
 
 <div class="row g-3 mb-3">
     <div class="col-md-3"><div class="card card-modern p-3"><small class="text-muted">Valeur stock</small><div class="fw-bold">{{ number_format($stats['total_value'] ?? 0, 0, ',', ' ') }} FCFA</div></div></div>
@@ -42,7 +44,7 @@
             <div class="card-header bg-white d-flex justify-content-between">
                 <h5 class="mb-0">📋 État du stock</h5>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('stock.analyse') }}" class="btn btn-sm btn-outline-primary">📊 Analyse</a>
+                    <a href="{{ route('stock.analyse', ['site_id' => $siteId]) }}" class="btn btn-sm btn-outline-primary">📊 Analyse</a>
                     <a href="{{ route('stock.inventories.index') }}" class="btn btn-sm btn-outline-primary">📝 Inventaires</a>
                     <a href="{{ route('stock.mouvements') }}" class="btn btn-sm btn-outline-primary">📜 Mouvements</a>
                 </div>
@@ -84,6 +86,7 @@
             <div class="card-body">
                 <form action="{{ route('stock.entree') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="site_id" value="{{ $siteId }}">
                     <select name="product_id" class="form-select mb-2" required>
                         <option value="">Produit...</option>
                         @foreach($products as $p)<option value="{{ $p->id }}">{{ $p->name }}</option>@endforeach
@@ -99,6 +102,7 @@
             <div class="card-body">
                 <form action="{{ route('stock.sortie') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="site_id" value="{{ $siteId }}">
                     <select name="product_id" class="form-select mb-2" required>
                         <option value="">Produit...</option>
                         @foreach($products as $p)<option value="{{ $p->id }}">{{ $p->name }}</option>@endforeach
@@ -114,6 +118,7 @@
             <div class="card-body">
                 <form action="{{ route('stock.inventaire') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="site_id" value="{{ $siteId }}">
                     <select name="product_id" class="form-select mb-2" required>
                         <option value="">Produit...</option>
                         @foreach($products as $p)<option value="{{ $p->id }}">{{ $p->name }}</option>@endforeach
@@ -133,6 +138,7 @@
                 </p>
                 <form action="{{ route('stock.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="site_id" value="{{ $siteId }}">
                     <input type="file" name="file" class="form-control mb-2" accept=".csv,.txt,.xlsx" required>
                     <button class="btn btn-primary w-100">📥 Importer et mettre à jour</button>
                 </form>

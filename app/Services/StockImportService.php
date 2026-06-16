@@ -11,7 +11,7 @@ class StockImportService
   /**
    * @return array{updated:int, skipped:int, errors:array<int, string>}
    */
-  public static function import(UploadedFile $file): array
+  public static function import(UploadedFile $file, ?int $siteId = null): array
   {
     $rows = self::readFile($file);
     if (empty($rows)) {
@@ -63,7 +63,9 @@ class StockImportService
         $quantity,
         'inventaire',
         'IMPORT',
-        'Mise à jour stock via fichier'
+        'Mise à jour stock via fichier',
+        null,
+        $siteId
       );
       $updated++;
     }

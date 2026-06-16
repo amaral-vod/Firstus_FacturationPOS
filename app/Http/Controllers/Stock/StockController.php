@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Stock;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\Stock;
 use App\Models\StockMovement;
 use App\Services\ActivityLogger;
+use App\Services\PurchaseOrderService;
 use App\Services\StockAnalyticsService;
 use App\Services\StockImportService;
 use App\Services\StockService;
@@ -16,41 +18,54 @@ class StockController extends Controller
 {
     public function index(Request $request)
     {
-        $stocks = Stock::with('product.category')
+        $siteId = StockService::resolveSiteId($request->integer('site_id') ?: null);
+        $sites = StockService::activeSites();
+
+        $stocks = Stock::with(['product.category', 'site'])
+            ->where('site_id', $siteId)
             ->when($request->alerte, fn ($q) => $q->whereColumn('quantity', '<=', 'min_quantity'))
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         $products = Product::where('is_active', true)->orderBy('name')->get();
-        $lowCount = Stock::whereColumn('quantity', '<=', 'min_quantity')->count();
-        $stats = StockAnalyticsService::summary();
+        $lowCount = Stock::where('site_id', $siteId)->whereColumn('quantity', '<=', 'min_quantity')->count();
+        $stats = StockAnalyticsService::summary($siteId);
 
-        return view('stock.index', compact('stocks', 'products', 'lowCount', 'stats'));
+        return view('stock.index', compact('stocks', 'products', 'lowCount', 'stats', 'sites', 'siteId'));
     }
 
-    public function analyse()
+    public function analyse(Request $request)
     {
-        $stats = StockAnalyticsService::summary();
-        $byCategory = StockAnalyticsService::valuationByCategory();
-        $slowMovers = StockAnalyticsService::slowMovers();
-        $rotation = StockAnalyticsService::rotation();
-        $replenishment = StockAnalyticsService::replenishmentList();
-        $overstock = StockAnalyticsService::overstockList();
+        $siteId = StockService::resolveSiteId($request->integer('site_id') ?: null);
+        $sites = StockService::activeSites();
+
+        $stats = StockAnalyticsService::summary($siteId);
+        $byCategory = StockAnalyticsService::valuationByCategory($siteId);
+        $slowMovers = StockAnalyticsService::slowMovers(siteId: $siteId);
+        $rotation = StockAnalyticsService::rotation(siteId: $siteId);
+        $replenishment = StockAnalyticsService::replenishmentList($siteId);
+        $overstock = StockAnalyticsService::overstockList($siteId);
         $losses = StockAnalyticsService::inventoryLosses();
         $movementStats = StockAnalyticsService::movementStats(
             now()->subDays(30)->toDateString(),
-            now()->toDateString()
+            now()->toDateString(),
+            $siteId
         );
 
         return view('stock.analyse', compact(
             'stats', 'byCategory', 'slowMovers', 'rotation',
-            'replenishment', 'overstock', 'losses', 'movementStats'
+            'replenishment', 'overstock', 'losses', 'movementStats', 'sites', 'siteId'
         ));
     }
 
     public function mouvements(Request $request)
     {
-        $mouvements = StockMovement::with(['product', 'user'])
+        $siteId = StockService::resolveSiteId($request->integer('site_id') ?: null);
+        $sites = StockService::activeSites();
+
+        $mouvements = StockMovement::with(['product', 'user', 'site'])
+            ->where('site_id', $siteId)
             ->when($request->type, fn ($q) => $q->where('type', $request->type))
             ->when($request->product_id, fn ($q) => $q->where('product_id', $request->product_id))
             ->when($request->from, fn ($q) => $q->whereDate('created_at', '>=', $request->from))
@@ -63,9 +78,9 @@ class StockController extends Controller
             ->withQueryString();
 
         $products = Product::orderBy('name')->get(['id', 'name']);
-        $movementStats = StockAnalyticsService::movementStats($request->from, $request->to);
+        $movementStats = StockAnalyticsService::movementStats($request->from, $request->to, $siteId);
 
-        return view('stock.mouvements', compact('mouvements', 'products', 'movementStats'));
+        return view('stock.mouvements', compact('mouvements', 'products', 'movementStats', 'sites', 'siteId'));
     }
 
     public function entree(Request $request)
@@ -74,10 +89,19 @@ class StockController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string',
+            'site_id' => 'nullable|exists:sites,id',
         ]);
 
         $product = Product::findOrFail($data['product_id']);
-        StockService::adjust($product, $data['quantity'], 'entree', null, $data['notes'] ?? 'Entrée de stock');
+        StockService::adjust(
+            $product,
+            $data['quantity'],
+            'entree',
+            null,
+            $data['notes'] ?? 'Entrée de stock',
+            null,
+            $data['site_id'] ?? null
+        );
         ActivityLogger::log('entree_stock', 'stock', "Entrée +{$data['quantity']} pour {$product->name}");
 
         return back()->with('success', '📦 Entrée de stock enregistrée.');
@@ -89,11 +113,20 @@ class StockController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string',
+            'site_id' => 'nullable|exists:sites,id',
         ]);
 
         try {
             $product = Product::findOrFail($data['product_id']);
-            StockService::adjust($product, $data['quantity'], 'sortie', null, $data['notes'] ?? 'Sortie de stock');
+            StockService::adjust(
+                $product,
+                $data['quantity'],
+                'sortie',
+                null,
+                $data['notes'] ?? 'Sortie de stock',
+                null,
+                $data['site_id'] ?? null
+            );
             ActivityLogger::log('sortie_stock', 'stock', "Sortie -{$data['quantity']} pour {$product->name}");
 
             return back()->with('success', '📤 Sortie de stock enregistrée.');
@@ -108,10 +141,19 @@ class StockController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:0',
             'notes' => 'nullable|string',
+            'site_id' => 'nullable|exists:sites,id',
         ]);
 
         $product = Product::findOrFail($data['product_id']);
-        StockService::adjust($product, $data['quantity'], 'inventaire', null, $data['notes'] ?? 'Inventaire');
+        StockService::adjust(
+            $product,
+            $data['quantity'],
+            'inventaire',
+            null,
+            $data['notes'] ?? 'Inventaire',
+            null,
+            $data['site_id'] ?? null
+        );
         ActivityLogger::log('inventaire', 'stock', "Inventaire {$product->name} => {$data['quantity']}");
 
         return back()->with('success', '📋 Inventaire mis à jour.');
@@ -121,10 +163,14 @@ class StockController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt,xlsx|max:10240',
+            'site_id' => 'nullable|exists:sites,id',
         ]);
 
         try {
-            $result = StockImportService::import($request->file('file'));
+            $result = StockImportService::import(
+                $request->file('file'),
+                $request->integer('site_id') ?: null
+            );
             ActivityLogger::log(
                 'import_stock',
                 'stock',

@@ -142,11 +142,11 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]);
 
-            if (! $product->stock) {
-                $product->stock()->create(['quantity' => 0, 'min_quantity' => 5]);
+            if (! $product->stockForSite($site->id)) {
+                $product->stocks()->create(['site_id' => $site->id, 'quantity' => 0, 'min_quantity' => 5]);
             }
 
-            StockService::adjust($product, $p['stock'], 'entree', 'SEED', 'Stock initial', $adminUser->id);
+            StockService::adjust($product, $p['stock'], 'entree', 'SEED', 'Stock initial', $adminUser->id, $site->id);
         }
 
         $settings = [

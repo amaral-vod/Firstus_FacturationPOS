@@ -11,6 +11,9 @@
                     <input type="text" name="search" class="form-control" placeholder="🔍 Rechercher..." value="{{ request('search') }}">
                     <button class="btn btn-primary">🔍</button>
                 </form>
+                @if(isset($siteId))
+                <small class="text-muted">Stock affiché pour le site #{{ $siteId }}</small>
+                @endif
             </div>
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
@@ -19,6 +22,7 @@
                     </thead>
                     <tbody>
                         @foreach($products as $product)
+                        @php $stockRow = $product->stocks->first(); @endphp
                         <tr>
                             <td>{{ $product->name }}<br><small class="text-muted">{{ $product->category?->name }}</small></td>
                             <td>{{ $product->sku }}</td>
@@ -29,8 +33,8 @@
                                 @endif
                             </td>
                             <td>{{ number_format($product->cost ?? 0, 0, ',', ' ') }}</td>
-                            <td>{{ $product->stock?->quantity ?? 0 }}</td>
-                            <td><small>{{ $product->stock?->min_quantity ?? 5 }} / {{ $product->stock?->max_quantity ?: '—' }}</small></td>
+                            <td>{{ $stockRow?->quantity ?? 0 }}</td>
+                            <td><small>{{ $stockRow?->min_quantity ?? 5 }} / {{ $stockRow?->max_quantity ?: '—' }}</small></td>
                             <td>{!! $product->is_active ? '✅' : '🚫' !!}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $product->id }}">✏️</button>
@@ -59,6 +63,10 @@
                         <option value="">Catégorie</option>
                         @foreach($categories as $cat)<option value="{{ $cat->id }}">{{ $cat->name }}</option>@endforeach
                     </select>
+                    <select name="fournisseur_id" class="form-select mb-2">
+                        <option value="">Fournisseur (optionnel)</option>
+                        @foreach($fournisseurs as $f)<option value="{{ $f->id }}">{{ $f->name }}</option>@endforeach
+                    </select>
                     <input type="number" name="price" class="form-control mb-2" placeholder="Prix vente" step="0.01" required>
                     <input type="number" name="cost" class="form-control mb-2" placeholder="Coût d'achat" step="0.01">
                     <input type="number" name="promo_price" class="form-control mb-2" placeholder="Prix promo" step="0.01">
@@ -72,6 +80,7 @@
 </div>
 
 @foreach($products as $product)
+@php $stockRow = $product->stocks->first(); @endphp
 <div class="modal fade" id="edit{{ $product->id }}" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -86,17 +95,23 @@
                             <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
                     </select>
+                    <select name="fournisseur_id" class="form-select mb-2">
+                        <option value="">Fournisseur</option>
+                        @foreach($fournisseurs as $f)
+                            <option value="{{ $f->id }}" {{ $product->fournisseur_id == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                        @endforeach
+                    </select>
                     <input type="number" name="price" class="form-control mb-2" value="{{ $product->price }}" step="0.01" required>
                     <input type="number" name="cost" class="form-control mb-2" value="{{ $product->cost }}" step="0.01" placeholder="Coût d'achat">
                     <input type="number" name="promo_price" class="form-control mb-2" value="{{ $product->promo_price }}" step="0.01" placeholder="Prix promo">
                     <div class="row g-2">
                         <div class="col-6">
                             <label class="form-label small">Stock min</label>
-                            <input type="number" name="min_quantity" class="form-control" value="{{ $product->stock?->min_quantity ?? 5 }}" min="0">
+                            <input type="number" name="min_quantity" class="form-control" value="{{ $stockRow?->min_quantity ?? 5 }}" min="0">
                         </div>
                         <div class="col-6">
                             <label class="form-label small">Stock max (0 = illimité)</label>
-                            <input type="number" name="max_quantity" class="form-control" value="{{ $product->stock?->max_quantity ?? 0 }}" min="0">
+                            <input type="number" name="max_quantity" class="form-control" value="{{ $stockRow?->max_quantity ?? 0 }}" min="0">
                         </div>
                     </div>
                     <div class="form-check mt-2">

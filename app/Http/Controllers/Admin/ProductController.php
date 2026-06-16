@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Fournisseur;
 use App\Models\Product;
 use App\Services\ActivityLogger;
 use App\Services\StockService;
@@ -14,7 +15,8 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'stock']);
+        $siteId = StockService::resolveSiteId();
+        $query = Product::with(['category', 'fournisseur', 'stocks' => fn ($q) => $q->where('site_id', $siteId)]);
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -26,8 +28,9 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(15);
         $categories = Category::where('is_active', true)->get();
+        $fournisseurs = Fournisseur::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.products.index', compact('products', 'categories'));
+        return view('admin.products.index', compact('products', 'categories', 'fournisseurs', 'siteId'));
     }
 
     public function store(Request $request)
@@ -35,6 +38,7 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
+            'fournisseur_id' => 'nullable|exists:fournisseurs,id',
             'sku' => 'required|string|unique:products',
             'barcode' => 'nullable|string|unique:products',
             'price' => 'required|numeric|min:0',
@@ -50,7 +54,11 @@ class ProductController extends Controller
         if ($request->filled('initial_stock')) {
             StockService::adjust($product, (int) $request->initial_stock, 'entree', 'INIT', 'Stock initial');
         } else {
-            $product->stock()->create(['quantity' => 0, 'min_quantity' => $request->min_quantity ?? 5]);
+            $product->stocks()->create([
+                'site_id' => StockService::resolveSiteId(),
+                'quantity' => 0,
+                'min_quantity' => $request->min_quantity ?? 5,
+            ]);
         }
 
         ActivityLogger::log('creation', 'produits', "Création produit {$product->name}");
@@ -63,6 +71,7 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
+            'fournisseur_id' => 'nullable|exists:fournisseurs,id',
             'sku' => 'required|string|unique:products,sku,'.$product->id,
             'barcode' => 'nullable|string|unique:products,barcode,'.$product->id,
             'price' => 'required|numeric|min:0',
@@ -78,12 +87,15 @@ class ProductController extends Controller
         unset($data['min_quantity'], $data['max_quantity']);
         $product->update($data);
 
-        $product->stock()->updateOrCreate(
-            ['product_id' => $product->id],
+        $siteId = StockService::resolveSiteId();
+        $current = $product->stockForSite($siteId);
+
+        $product->stocks()->updateOrCreate(
+            ['site_id' => $siteId],
             [
-                'quantity' => $product->stock?->quantity ?? 0,
-                'min_quantity' => $request->input('min_quantity', $product->stock?->min_quantity ?? 5),
-                'max_quantity' => $request->input('max_quantity', $product->stock?->max_quantity ?? 0),
+                'quantity' => $current?->quantity ?? 0,
+                'min_quantity' => $request->input('min_quantity', $current?->min_quantity ?? 5),
+                'max_quantity' => $request->input('max_quantity', $current?->max_quantity ?? 0),
             ]
         );
 
