@@ -7,6 +7,7 @@ use App\Models\Annulation;
 use App\Models\Retour;
 use App\Models\Stock;
 use App\Models\Vente;
+use App\Services\StockAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,7 @@ class RapportController extends Controller
             ->get();
 
         $etatStock = Stock::with('product')->orderBy('quantity')->get();
+        $stockStats = StockAnalyticsService::summary();
         $retours = Retour::when($periode === 'jour', fn ($q) => $q->whereDate('created_at', today()))
             ->when($periode === 'mois', fn ($q) => $q->whereMonth('created_at', now()->month))
             ->when($periode === 'annee', fn ($q) => $q->whereYear('created_at', now()->year))
@@ -62,7 +64,7 @@ class RapportController extends Controller
             ->get();
 
         return view('rapports.index', compact(
-            'ca', 'nbVentes', 'topProducts', 'etatStock',
+            'ca', 'nbVentes', 'topProducts', 'etatStock', 'stockStats',
             'retours', 'annulations', 'caParJour', 'periode'
         ));
     }

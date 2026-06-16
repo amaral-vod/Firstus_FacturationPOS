@@ -15,7 +15,7 @@
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr><th>Produit</th><th>SKU</th><th>Prix</th><th>Stock</th><th>Statut</th><th></th></tr>
+                        <tr><th>Produit</th><th>SKU</th><th>Prix</th><th>Coût</th><th>Stock</th><th>Min/Max</th><th>Statut</th><th></th></tr>
                     </thead>
                     <tbody>
                         @foreach($products as $product)
@@ -28,7 +28,9 @@
                                     <br><small class="text-danger">🔥 {{ number_format($product->promo_price, 0, ',', ' ') }}</small>
                                 @endif
                             </td>
+                            <td>{{ number_format($product->cost ?? 0, 0, ',', ' ') }}</td>
                             <td>{{ $product->stock?->quantity ?? 0 }}</td>
+                            <td><small>{{ $product->stock?->min_quantity ?? 5 }} / {{ $product->stock?->max_quantity ?: '—' }}</small></td>
                             <td>{!! $product->is_active ? '✅' : '🚫' !!}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $product->id }}">✏️</button>
@@ -57,9 +59,11 @@
                         <option value="">Catégorie</option>
                         @foreach($categories as $cat)<option value="{{ $cat->id }}">{{ $cat->name }}</option>@endforeach
                     </select>
-                    <input type="number" name="price" class="form-control mb-2" placeholder="Prix" step="0.01" required>
+                    <input type="number" name="price" class="form-control mb-2" placeholder="Prix vente" step="0.01" required>
+                    <input type="number" name="cost" class="form-control mb-2" placeholder="Coût d'achat" step="0.01">
                     <input type="number" name="promo_price" class="form-control mb-2" placeholder="Prix promo" step="0.01">
                     <input type="number" name="initial_stock" class="form-control mb-2" placeholder="Stock initial" min="0">
+                    <input type="number" name="min_quantity" class="form-control mb-2" placeholder="Stock minimum" min="0" value="5">
                     <button class="btn btn-primary w-100">➕ Ajouter</button>
                 </form>
             </div>
@@ -83,8 +87,19 @@
                         @endforeach
                     </select>
                     <input type="number" name="price" class="form-control mb-2" value="{{ $product->price }}" step="0.01" required>
+                    <input type="number" name="cost" class="form-control mb-2" value="{{ $product->cost }}" step="0.01" placeholder="Coût d'achat">
                     <input type="number" name="promo_price" class="form-control mb-2" value="{{ $product->promo_price }}" step="0.01" placeholder="Prix promo">
-                    <div class="form-check">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small">Stock min</label>
+                            <input type="number" name="min_quantity" class="form-control" value="{{ $product->stock?->min_quantity ?? 5 }}" min="0">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Stock max (0 = illimité)</label>
+                            <input type="number" name="max_quantity" class="form-control" value="{{ $product->stock?->max_quantity ?? 0 }}" min="0">
+                        </div>
+                    </div>
+                    <div class="form-check mt-2">
                         <input type="checkbox" name="is_active" value="1" class="form-check-input" {{ $product->is_active ? 'checked' : '' }}>
                         <label class="form-check-label">Actif</label>
                     </div>

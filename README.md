@@ -6,6 +6,10 @@ Application de gestion commerciale : caisse (POS), stock, facturation proforma, 
 - GitLab : https://gitlab.com/frioldfr/Firstus-FacturationPOS
 - GitHub : https://github.com/amaral-vod/Firstus_FacturationPOS
 
+**Développement local :** [docs/TRAVAIL-LOCAL.md](docs/TRAVAIL-LOCAL.md) — `./scripts/dev-local.sh`  
+**Tous les liens :** [docs/LIENS.md](docs/LIENS.md)  
+**Hébergement production :** [docs/DEPLOY-EASYGEST.md](docs/DEPLOY-EASYGEST.md) — `https://facturation.easygest.org`
+
 **Manuel utilisateur :**
 - [docs/MANUEL-UTILISATION.md](docs/MANUEL-UTILISATION.md)
 - [docs/MANUEL-UTILISATION.docx](docs/MANUEL-UTILISATION.docx) (Word)
@@ -14,19 +18,18 @@ Application de gestion commerciale : caisse (POS), stock, facturation proforma, 
 
 ## Accès à l'application
 
-| Accès | URL |
-|-------|-----|
-| Réseau local | http://192.168.1.79:8000/login |
-| Localhost | http://127.0.0.1:8000/login |
-| Apache (redirect) | http://192.168.1.79/Firstus_FacturationPOS/ |
+| Accès | URL | Commande |
+|-------|-----|----------|
+| **Local (prioritaire)** | http://127.0.0.1:8000/login | `./scripts/dev-local.sh` |
+| Réseau LAN | http://192.168.1.79:8000/login | `./start-reseau.sh` |
 
-Démarrer le serveur :
+**Tous les liens :** [docs/LIENS.md](docs/LIENS.md)
+
+Démarrer le serveur local :
 
 ```bash
 cd /var/www/html/Firstus_FacturationPOS
-./start-reseau.sh
-# ou
-php artisan serve --host=0.0.0.0 --port=8000
+./scripts/dev-local.sh
 ```
 
 ---

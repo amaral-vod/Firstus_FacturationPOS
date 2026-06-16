@@ -21,25 +21,68 @@ class NotificationService
         ]);
     }
 
-    public static function alertStockFaible(): void
+    public static function alertStockFaible(): int
     {
+        $count = 0;
         $stocks = Stock::with('product')->whereColumn('quantity', '<=', 'min_quantity')->get();
+
         foreach ($stocks as $stock) {
-            static::send(
-                null,
+            if (static::alreadyNotifiedToday('stock_faible', $stock->product_id)) {
+                continue;
+            }
+
+            static::alertAdmins(
                 'stock_faible',
                 '⚠️ Stock faible',
-                "Le produit « {$stock->product->name} » est en stock critique ({$stock->quantity} restants).",
+                "« {$stock->product->name} » : {$stock->quantity} restant(s) (seuil {$stock->min_quantity}).",
                 'warning',
                 ['product_id' => $stock->product_id]
             );
+            $count++;
         }
+
+        return $count;
     }
 
-    public static function alertAdmins(string $type, string $titre, string $message, string $niveau = 'info'): void
+    public static function alertSurstock(): int
     {
-        User::whereHas('role', fn ($q) => $q->whereIn('slug', ['admin', 'super_admin']))->each(function ($user) use ($type, $titre, $message, $niveau) {
-            static::send($user->id, $type, $titre, $message, $niveau);
-        });
+        $count = 0;
+        $stocks = Stock::with('product')
+            ->where('max_quantity', '>', 0)
+            ->whereColumn('quantity', '>', 'max_quantity')
+            ->get();
+
+        foreach ($stocks as $stock) {
+            if (static::alreadyNotifiedToday('stock_surstock', $stock->product_id)) {
+                continue;
+            }
+
+            static::alertAdmins(
+                'stock_surstock',
+                '📦 Surstock',
+                "« {$stock->product->name} » : {$stock->quantity} unités (max {$stock->max_quantity}).",
+                'info',
+                ['product_id' => $stock->product_id]
+            );
+            $count++;
+        }
+
+        return $count;
+    }
+
+    private static function alreadyNotifiedToday(string $type, int $productId): bool
+    {
+        return Notification::where('type', $type)
+            ->whereDate('created_at', today())
+            ->whereJsonContains('metadata->product_id', $productId)
+            ->exists();
+    }
+
+    public static function alertAdmins(string $type, string $titre, string $message, string $niveau = 'info', ?array $metadata = null): void
+    {
+        User::whereHas('role', fn ($q) => $q->whereIn('slug', ['admin', 'super_admin', 'magasinier']))
+            ->each(function ($user) use ($type, $titre, $message, $niveau, $metadata) {
+                static::send($user->id, $type, $titre, $message, $niveau, $metadata);
+            });
     }
 }

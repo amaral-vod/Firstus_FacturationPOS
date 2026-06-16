@@ -25,6 +25,7 @@ deploy/easygest.env
 deploy/easygest-ftp.env
 deploy/.env.production.upload
 deploy/firstus_pos.sql.gz
+deploy/vendor.tar.gz
 firstus-deploy.zip
 _ide_helper.php
 Homestead.json

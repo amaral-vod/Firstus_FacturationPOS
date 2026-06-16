@@ -6,16 +6,12 @@
 <style>
     .account-card { cursor: pointer; transition: all .2s; border: 2px solid transparent; }
     .account-card:hover { border-color: var(--primary); background: #f8fafc; }
-    .link-item { font-size: .85rem; }
-    .link-item a { text-decoration: none; }
-    .link-item a:hover { text-decoration: underline; }
-    .link-section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; color: #64748b; margin: .75rem 0 .25rem; }
 </style>
 @endsection
 
 @section('content')
 <div class="row justify-content-center g-4">
-    <div class="col-lg-{{ $demoMode ? '4' : '5' }}">
+    <div class="col-lg-{{ $demoMode ? '6' : '5' }} {{ $demoMode ? '' : 'mx-auto' }}">
         <div class="card card-modern shadow">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
@@ -46,33 +42,12 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100">🚀 Se connecter</button>
                 </form>
-
-                @if($demoMode)
-                <div class="mt-3 p-2 bg-light rounded small">
-                    <div class="link-section-title">Accès application</div>
-                    @foreach($accessLinks as $link)
-                    <div class="mb-1">
-                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a><br>
-                        <span class="text-muted text-break">{{ $link['url'] }}</span>
-                    </div>
-                    @endforeach
-                </div>
-
-                <div class="mt-2 p-2 bg-light rounded small">
-                    <div class="link-section-title">Dépôts Git (GitLab / GitHub)</div>
-                    @foreach($externalLinks as $link)
-                    <div class="mb-1">
-                        <a href="{{ $link['url'] }}" target="_blank" rel="noopener">{{ $link['label'] }}</a>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
             </div>
         </div>
     </div>
 
     @if($demoMode)
-    <div class="col-lg-4">
+    <div class="col-lg-6">
         <div class="card card-modern shadow h-100">
             <div class="card-header bg-white">
                 <h6 class="mb-0">🔐 Comptes utilisateurs (mot de passe : <code>password</code>)</h6>
@@ -93,25 +68,6 @@
                 @empty
                 <p class="text-muted p-3">Aucun compte actif.</p>
                 @endforelse
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card card-modern shadow h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">🔗 Liens des modules</h6>
-                <small class="text-muted">(connexion requise)</small>
-            </div>
-            <div class="card-body p-2" style="max-height:520px;overflow-y:auto">
-                <div class="list-group list-group-flush">
-                    @foreach($moduleLinks as $link)
-                    <div class="list-group-item link-item py-2 px-2 border-0">
-                        <a href="{{ $link['url'] }}" class="text-dark">{{ $link['label'] }}</a>
-                        <br><small class="text-muted text-break">{{ $link['url'] }}</small>
-                    </div>
-                    @endforeach
-                </div>
             </div>
         </div>
     </div>

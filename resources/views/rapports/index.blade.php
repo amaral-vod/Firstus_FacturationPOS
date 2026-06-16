@@ -52,7 +52,10 @@
     </div>
     <div class="col-md-6">
         <div class="card card-modern">
-            <div class="card-header bg-white"><h6 class="mb-0">📦 État du stock</h6></div>
+            <div class="card-header bg-white d-flex justify-content-between">
+                <h6 class="mb-0">📦 État du stock</h6>
+                <span class="badge bg-primary">{{ number_format($stockStats['total_value'] ?? 0, 0, ',', ' ') }} FCFA</span>
+            </div>
             <div class="card-body p-0" style="max-height:300px;overflow:auto">
                 <table class="table mb-0">
                     <thead class="table-light"><tr><th>Produit</th><th>Qté</th><th></th></tr></thead>

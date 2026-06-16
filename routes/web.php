@@ -21,6 +21,7 @@ use App\Http\Controllers\Journal\JournalController;
 use App\Http\Controllers\Rapport\RapportController;
 use App\Http\Controllers\Retour\RetourController;
 use App\Http\Controllers\Setting\SettingController;
+use App\Http\Controllers\Stock\InventorySessionController;
 use App\Http\Controllers\Stock\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -81,11 +82,23 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:stock.view')->prefix('stock')->name('stock.')->group(function () {
         Route::get('/', [StockController::class, 'index'])->name('index');
         Route::get('/mouvements', [StockController::class, 'mouvements'])->name('mouvements');
+        Route::get('/analyse', [StockController::class, 'analyse'])->name('analyse');
+        Route::get('/inventaires', [InventorySessionController::class, 'index'])->name('inventories.index');
+        Route::get('/inventaires/nouveau', [InventorySessionController::class, 'create'])->name('inventories.create');
+        Route::get('/inventaires/{inventory}', [InventorySessionController::class, 'show'])->name('inventories.show');
+        Route::get('/inventaires/{inventory}/rapport', [InventorySessionController::class, 'report'])->name('inventories.report');
+    });
+
+    Route::middleware('permission:stock.inventory')->group(function () {
+        Route::post('/stock/inventaires', [InventorySessionController::class, 'store'])->name('stock.inventories.store');
+        Route::put('/stock/inventaires/{inventory}', [InventorySessionController::class, 'update'])->name('stock.inventories.update');
+        Route::post('/stock/inventaires/{inventory}/annuler', [InventorySessionController::class, 'cancel'])->name('stock.inventories.cancel');
     });
 
     Route::middleware('permission:stock.entry')->post('/stock/entree', [StockController::class, 'entree'])->name('stock.entree');
     Route::middleware('permission:stock.exit')->post('/stock/sortie', [StockController::class, 'sortie'])->name('stock.sortie');
     Route::middleware('permission:stock.inventory')->post('/stock/inventaire', [StockController::class, 'inventaire'])->name('stock.inventaire');
+    Route::middleware('permission:stock.import')->post('/stock/import', [StockController::class, 'import'])->name('stock.import');
 
     Route::middleware('permission:retour.manage')->prefix('retours')->name('retours.')->group(function () {
         Route::get('/', [RetourController::class, 'index'])->name('index');

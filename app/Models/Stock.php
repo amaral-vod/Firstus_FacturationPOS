@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Stock extends Model
 {
-    protected $fillable = ['product_id', 'quantity', 'min_quantity', 'location'];
+    protected $fillable = ['product_id', 'quantity', 'min_quantity', 'max_quantity', 'location'];
 
     public function product(): BelongsTo
     {
@@ -17,5 +17,15 @@ class Stock extends Model
     public function isLow(): bool
     {
         return $this->quantity <= $this->min_quantity;
+    }
+
+    public function isOverstock(): bool
+    {
+        return $this->max_quantity > 0 && $this->quantity > $this->max_quantity;
+    }
+
+    public function valuation(): float
+    {
+        return $this->quantity * (float) ($this->product?->cost ?? 0);
     }
 }

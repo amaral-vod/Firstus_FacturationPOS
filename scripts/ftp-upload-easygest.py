@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ENV_FILE = ROOT / "deploy" / "easygest-ftp.env"
 
 SKIP_DIR_NAMES = {".git", ".cursor", ".idea", ".vscode", "node_modules"}
-SKIP_FILES = {".env", ".env.backup", ".DS_Store", "easygest-ftp.env", "easygest.env"}
+SKIP_FILES = {".env", ".env.backup", ".DS_Store", "easygest-ftp.env", "easygest.env", "index.html", "firstus-deploy.zip"}
 
 
 def load_env(path: Path) -> dict[str, str]:
@@ -111,6 +111,15 @@ def main() -> int:
             print("    .htaccess racine OK")
         except Exception as exc:
             print(f"    ⚠ .htaccess : {exc}", file=sys.stderr)
+
+    # Supprimer index.html parasite (redirection IP locale)
+    try:
+        deploy.cd_root()
+        deploy.mkdirs(remote_base)
+        ftp.delete("index.html")
+        print("    index.html supprimé")
+    except ftplib.error_perm:
+        pass
 
     env_upload = ROOT / "deploy" / ".env.production.upload"
     if env_upload.exists():

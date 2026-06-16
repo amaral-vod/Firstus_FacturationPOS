@@ -26,6 +26,8 @@ return [
         'stock.entry' => '📥 Entrée stock',
         'stock.exit' => '📤 Sortie stock',
         'stock.inventory' => '📝 Inventaire',
+        'stock.import' => '📥 Import stock (CSV/Excel)',
+        'stock.inventory.validate' => '✅ Valider inventaire',
         'fournisseurs.manage' => '🏭 Fournisseurs',
         'retour.manage' => '↩️ Retours',
         'annulation.manage' => '🚫 Annulations',
@@ -46,7 +48,7 @@ return [
         ],
         'magasinier' => [
             'dashboard.view', 'stock.view', 'stock.entry', 'stock.exit',
-            'stock.inventory', 'products.manage', 'categories.manage',
+            'stock.inventory', 'stock.import', 'products.manage', 'categories.manage',
             'fournisseurs.manage', 'retour.manage',
         ],
         'comptable' => [

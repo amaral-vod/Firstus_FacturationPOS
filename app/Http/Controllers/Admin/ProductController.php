@@ -68,14 +68,24 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'promo_price' => 'nullable|numeric|min:0',
-            'promo_start' => 'nullable|date',
-            'promo_end' => 'nullable|date|after_or_equal:promo_start',
             'unit' => 'nullable|string|max:50',
             'is_active' => 'boolean',
+            'min_quantity' => 'nullable|integer|min:0',
+            'max_quantity' => 'nullable|integer|min:0',
         ]);
 
         $data['is_active'] = $request->boolean('is_active', true);
+        unset($data['min_quantity'], $data['max_quantity']);
         $product->update($data);
+
+        $product->stock()->updateOrCreate(
+            ['product_id' => $product->id],
+            [
+                'quantity' => $product->stock?->quantity ?? 0,
+                'min_quantity' => $request->input('min_quantity', $product->stock?->min_quantity ?? 5),
+                'max_quantity' => $request->input('max_quantity', $product->stock?->max_quantity ?? 0),
+            ]
+        );
 
         ActivityLogger::log('modification', 'produits', "Modification produit {$product->name}");
 

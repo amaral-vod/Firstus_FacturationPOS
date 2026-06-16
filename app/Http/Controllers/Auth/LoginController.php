@@ -25,53 +25,8 @@ class LoginController extends Controller
         $accounts = User::with('role')->where('is_active', true)->orderBy('name')->get();
 
         $demoMode = (bool) config('app.demo_mode');
-        $base = rtrim(config('app.url'), '/');
-        $ip = request()->server('SERVER_ADDR') ?: '192.168.1.79';
 
-        $moduleLinks = [
-            ['label' => '📊 Tableau de bord', 'url' => route('dashboard')],
-            ['label' => '💰 POS / Caisse', 'url' => route('caisse.index')],
-            ['label' => '🏧 Ouverture/Fermeture caisse', 'url' => route('caisse.sessions.index')],
-            ['label' => '🧾 Historique ventes', 'url' => route('caisse.historique')],
-            ['label' => '📄 Facturation', 'url' => route('facturation.index')],
-            ['label' => '📋 Nouvelle proforma', 'url' => route('facturation.create')],
-            ['label' => '📋 Liste proformas', 'url' => route('facturation.index', ['type' => 'proforma'])],
-            ['label' => '🤝 Clients', 'url' => route('clients.index')],
-            ['label' => '💳 Crédits clients', 'url' => route('clients.credits')],
-            ['label' => '📦 Stock', 'url' => route('stock.index')],
-            ['label' => '📜 Mouvements stock', 'url' => route('stock.mouvements')],
-            ['label' => '🏷️ Produits', 'url' => route('admin.products.index')],
-            ['label' => '📂 Catégories', 'url' => route('admin.categories.index')],
-            ['label' => '🏭 Fournisseurs', 'url' => route('fournisseurs.index')],
-            ['label' => '💸 Règlements fournisseurs', 'url' => route('fournisseurs.reglements')],
-            ['label' => '↩️ Retours', 'url' => route('retours.index')],
-            ['label' => '🚫 Annulations', 'url' => route('annulations.index')],
-            ['label' => '📈 Rapports & BI', 'url' => route('rapports.index')],
-            ['label' => '📜 Journal / Audit', 'url' => route('journal.index')],
-            ['label' => '🔔 Notifications', 'url' => route('notifications.index')],
-            ['label' => '👥 Utilisateurs', 'url' => route('admin.users.index')],
-            ['label' => '🔐 Rôles', 'url' => route('admin.roles.index')],
-            ['label' => '🔑 Permissions', 'url' => route('admin.permissions.index')],
-            ['label' => '👥 Groupes', 'url' => route('admin.groups.index')],
-            ['label' => '📜 Historique connexions', 'url' => route('admin.login-history.index')],
-            ['label' => '🛡️ Sécurité', 'url' => route('security.index')],
-            ['label' => '⚙️ Paramètres', 'url' => route('settings.index')],
-        ];
-
-        $externalLinks = [
-            ['label' => '🦊 GitLab', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS'],
-            ['label' => '🐙 GitHub', 'url' => 'https://github.com/amaral-vod/Firstus_FacturationPOS'],
-            ['label' => '📖 GitLab — Issues', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/issues'],
-            ['label' => '🔀 GitLab — Merge requests', 'url' => 'https://gitlab.com/frioldfr/Firstus-FacturationPOS/-/merge_requests'],
-        ];
-
-        $accessLinks = [
-            ['label' => '🌐 Réseau local', 'url' => "{$base}/login"],
-            ['label' => '🖥️ Cette machine (localhost)', 'url' => 'http://127.0.0.1:8000/login'],
-            ['label' => '📡 IP serveur', 'url' => "http://{$ip}:8000/login"],
-        ];
-
-        return view('auth.login', compact('accounts', 'moduleLinks', 'externalLinks', 'accessLinks', 'base', 'demoMode'));
+        return view('auth.login', compact('accounts', 'demoMode'));
     }
 
     public function login(Request $request)

@@ -88,7 +88,9 @@
             @if(auth()->user()->hasPermission('credits.manage'))<li class="nav-item"><a class="nav-link" href="{{ route('clients.credits') }}">💳 Crédits</a></li>@endif
 
             <li class="nav-item mt-2"><small class="text-white-50 px-3">📦 Stocks</small></li>
-            @if(auth()->user()->hasPermission('stock.view'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}" href="{{ route('stock.index') }}">📋 Stock</a></li>@endif
+            @if(auth()->user()->hasPermission('stock.view'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('stock.index') ? 'active' : '' }}" href="{{ route('stock.index') }}">📋 Stock</a></li>@endif
+            @if(auth()->user()->hasPermission('stock.view'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('stock.analyse') ? 'active' : '' }}" href="{{ route('stock.analyse') }}">📊 Analyse stock</a></li>@endif
+            @if(auth()->user()->hasPermission('stock.view'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('stock.inventories.*') ? 'active' : '' }}" href="{{ route('stock.inventories.index') }}">📝 Inventaires</a></li>@endif
             @if(auth()->user()->hasPermission('products.manage'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">🏷️ Produits</a></li>@endif
             @if(auth()->user()->hasPermission('categories.manage'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">📂 Catégories</a></li>@endif
             @if(auth()->user()->hasPermission('fournisseurs.manage'))<li class="nav-item"><a class="nav-link {{ request()->routeIs('fournisseurs.*') ? 'active' : '' }}" href="{{ route('fournisseurs.index') }}">🏭 Fournisseurs</a></li>@endif
