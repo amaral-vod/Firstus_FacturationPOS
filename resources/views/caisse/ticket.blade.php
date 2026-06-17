@@ -6,7 +6,7 @@
     <style>
         @page { margin: 0; }
         body {
-            font-family: 'Courier New', monospace;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
             width: {{ $settings['ticket_width'] }}mm;
             margin: 0 auto;
