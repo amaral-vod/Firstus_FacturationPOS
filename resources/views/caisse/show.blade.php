@@ -15,9 +15,10 @@
     </div>
     <div class="card-body">
         <div class="row mb-4">
-            <div class="col-md-4"><strong>📅 Date:</strong> {{ $vente->created_at->format('d/m/Y H:i') }}</div>
-            <div class="col-md-4"><strong>👤 Caissier:</strong> {{ $vente->user->name }}</div>
-            <div class="col-md-4"><strong>Statut:</strong> {{ $vente->statut }}</div>
+            <div class="col-md-3"><strong>📅 Date:</strong> {{ $vente->created_at->format('d/m/Y H:i') }}</div>
+            <div class="col-md-3"><strong>👤 Client:</strong> {{ $vente->clientLabel() }}</div>
+            <div class="col-md-3"><strong>🧑‍💼 Caissier:</strong> {{ $vente->user->name }}</div>
+            <div class="col-md-3"><strong>Statut:</strong> {{ $vente->statut }}</div>
         </div>
         <table class="table">
             <thead><tr><th>Produit</th><th>Qté</th><th>Prix unit.</th><th>Total</th></tr></thead>

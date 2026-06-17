@@ -51,7 +51,20 @@
     <div class="col-md-5">
         <div class="card card-modern h-100 d-flex flex-column">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">🛒 Panier</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🛒 Panier</h5>
+                    <span class="badge bg-light text-primary" id="clientBadge">👤 Client comptoir</span>
+                </div>
+            </div>
+            <div class="card-body border-bottom bg-light py-2">
+                <label class="form-label small mb-1">👤 Client</label>
+                <select id="clientSelect" class="form-select form-select-sm mb-2">
+                    <option value="">— Client comptoir —</option>
+                    @foreach($clients as $client)
+                    <option value="{{ $client->id }}" data-name="{{ $client->name }}">{{ $client->name }}@if($client->phone) ({{ $client->phone }})@endif</option>
+                    @endforeach
+                </select>
+                <input type="text" id="clientNomLibre" class="form-control form-control-sm" placeholder="Ou saisir un nom (client passage)">
             </div>
             <div class="card-body flex-grow-1 overflow-auto" id="cartItems">
                 <p class="text-muted text-center" id="emptyCart">Panier vide — cliquez sur un produit</p>
@@ -97,6 +110,32 @@
 @section('scripts')
 <script>
 let cart = [];
+
+function updateClientDisplay() {
+    const select = document.getElementById('clientSelect');
+    const libre = document.getElementById('clientNomLibre').value.trim();
+    const opt = select.selectedOptions[0];
+    let label = '👤 Client comptoir';
+    if (select.value && opt) {
+        label = '👤 ' + opt.dataset.name;
+    } else if (libre) {
+        label = '👤 ' + libre;
+    }
+    document.getElementById('clientBadge').textContent = label;
+}
+
+document.getElementById('clientSelect').addEventListener('change', function() {
+    if (this.value) {
+        document.getElementById('clientNomLibre').value = '';
+    }
+    updateClientDisplay();
+});
+document.getElementById('clientNomLibre').addEventListener('input', function() {
+    if (this.value.trim()) {
+        document.getElementById('clientSelect').value = '';
+    }
+    updateClientDisplay();
+});
 
 function addToCart(id, name, price, stock) {
     if (stock <= 0) { alert('❌ Stock insuffisant !'); return; }
@@ -172,7 +211,9 @@ async function validerVente() {
         body: JSON.stringify({
             items: cart.map(i => ({ product_id: i.product_id, quantite: i.quantite })),
             remise, montant_paye: montantPaye,
-            mode_paiement: document.getElementById('modePaiement').value
+            mode_paiement: document.getElementById('modePaiement').value,
+            client_id: document.getElementById('clientSelect').value || null,
+            client_nom: document.getElementById('clientNomLibre').value.trim() || null,
         })
     });
     const data = await res.json();
@@ -183,6 +224,9 @@ async function validerVente() {
         renderCart();
         document.getElementById('remise').value = 0;
         document.getElementById('montantPaye').value = '';
+        document.getElementById('clientSelect').value = '';
+        document.getElementById('clientNomLibre').value = '';
+        updateClientDisplay();
         location.reload();
     } else {
         alert('❌ ' + data.message);

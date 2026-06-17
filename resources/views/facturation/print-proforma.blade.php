@@ -86,6 +86,8 @@
         @media print {
             .no-print { display: none !important; }
             .format-tag { position: static; float: right; margin-bottom: 4px; }
+            body { page-break-inside: avoid; }
+            .header, .grid, table.items, .totals, .notes, .footer { page-break-inside: avoid; }
         }
     </style>
 </head>

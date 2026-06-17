@@ -33,6 +33,10 @@
         {{ $vente->created_at->format('d/m/Y H:i') }}
     </div>
     <div class="line"></div>
+    <div class="center">
+        <strong>Client : {{ $vente->clientLabel() }}</strong>
+    </div>
+    <div class="line"></div>
     <table>
         @foreach($vente->details as $detail)
         <tr>

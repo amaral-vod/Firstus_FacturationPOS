@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Vente extends Model
 {
     protected $fillable = [
-        'numero_facture', 'user_id', 'sous_total', 'remise', 'total',
+        'numero_facture', 'user_id', 'client_id', 'caisse_session_id', 'site_id',
+        'sous_total', 'remise', 'total',
         'montant_paye', 'monnaie', 'statut', 'mode_paiement', 'notes',
     ];
 
@@ -28,6 +29,24 @@ class Vente extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function clientLabel(): string
+    {
+        if ($this->client) {
+            return $this->client->name;
+        }
+
+        if ($this->notes && str_starts_with($this->notes, 'Client: ')) {
+            return trim(substr($this->notes, 8));
+        }
+
+        return 'Client comptoir';
     }
 
     public function details(): HasMany

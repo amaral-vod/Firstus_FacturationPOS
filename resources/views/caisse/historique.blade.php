@@ -17,6 +17,7 @@
                 <tr>
                     <th>N° Facture</th>
                     <th>Date</th>
+                    <th>Client</th>
                     <th>Caissier</th>
                     <th>Total</th>
                     <th>Statut</th>
@@ -28,6 +29,7 @@
                 <tr>
                     <td><strong>{{ $vente->numero_facture }}</strong></td>
                     <td>{{ $vente->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $vente->clientLabel() }}</td>
                     <td>{{ $vente->user->name }}</td>
                     <td>{{ number_format($vente->total, 0, ',', ' ') }} FCFA</td>
                     <td>
@@ -46,7 +48,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" class="text-center text-muted py-4">Aucune vente trouvée</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-4">Aucune vente trouvée</td></tr>
                 @endforelse
             </tbody>
         </table>

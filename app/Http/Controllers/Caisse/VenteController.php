@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\DetailVente;
 use App\Models\Facture;
 use App\Models\CaisseSession;
@@ -25,13 +26,14 @@ class VenteController extends Controller
             ->get();
 
         $categories = $products->pluck('category')->filter()->unique('id');
+        $clients = Client::where('is_active', true)->orderBy('name')->get(['id', 'name', 'phone']);
 
-        return view('caisse.index', compact('products', 'categories'));
+        return view('caisse.index', compact('products', 'categories', 'clients'));
     }
 
     public function historique(Request $request)
     {
-        $ventes = Vente::with('user')
+        $ventes = Vente::with(['user', 'client'])
             ->when($request->date, fn ($q) => $q->whereDate('created_at', $request->date))
             ->latest()
             ->paginate(20);
@@ -48,6 +50,8 @@ class VenteController extends Controller
             'remise' => 'nullable|numeric|min:0',
             'montant_paye' => 'required|numeric|min:0',
             'mode_paiement' => 'required|string',
+            'client_id' => 'nullable|exists:clients,id',
+            'client_nom' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
 
@@ -84,17 +88,24 @@ class VenteController extends Controller
                 $numero = 'FAC-'.now()->format('Ymd').'-'.str_pad((Vente::whereDate('created_at', today())->count() + 1), 4, '0', STR_PAD_LEFT);
                 $session = CaisseSession::sessionOuverte(auth()->id());
 
+                $notes = $data['notes'] ?? null;
+                if (empty($data['client_id']) && ! empty($data['client_nom'])) {
+                    $notes = 'Client: '.$data['client_nom'].($notes ? " — {$notes}" : '');
+                }
+
                 $vente = Vente::create([
                     'numero_facture' => $numero,
                     'user_id' => auth()->id(),
+                    'client_id' => $data['client_id'] ?? null,
                     'caisse_session_id' => $session?->id,
+                    'site_id' => StockService::resolveSiteId(),
                     'sous_total' => $sousTotal,
                     'remise' => $remise,
                     'total' => $total,
                     'montant_paye' => $montantPaye,
                     'monnaie' => $monnaie,
                     'mode_paiement' => $data['mode_paiement'],
-                    'notes' => $data['notes'] ?? null,
+                    'notes' => $notes,
                 ]);
 
                 foreach ($lines as $line) {
@@ -134,7 +145,7 @@ class VenteController extends Controller
 
                 ActivityLogger::log('vente', 'caisse', "Vente {$numero} - Total: {$total} FCFA", ['vente_id' => $vente->id]);
 
-                return $vente->load('details.product', 'user');
+                return $vente->load('details.product', 'user', 'client');
             });
 
             return response()->json([
@@ -149,14 +160,14 @@ class VenteController extends Controller
 
     public function show(Vente $vente)
     {
-        $vente->load('details.product', 'user', 'annulation', 'retours');
+        $vente->load('details.product', 'user', 'client', 'annulation', 'retours');
 
         return view('caisse.show', compact('vente'));
     }
 
     public function ticket(Vente $vente)
     {
-        $vente->load('details.product', 'user');
+        $vente->load('details.product', 'user', 'client');
         $settings = [
             'nom_magasin' => Setting::get('nom_magasin', 'Firstus POS'),
             'adresse' => Setting::get('adresse', ''),
